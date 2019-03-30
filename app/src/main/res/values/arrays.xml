@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="shapeList">
+        <item>Small Circle</item>
+        <item>Medium Circle</item>
+        <item>Large Circle</item>
+        <item>Small Square</item>
+        <item>Medium Square</item>
+        <item>Large Square</item>
+        <item>Small Triangle</item>
+        <item>Medium Triangle</item>
+        <item>Large Triangle</item>
+    </string-array>
+    <string-array name="shapeValue">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+    </string-array>
+    <string-array name="colorList">
+        <item>Black</item>
+        <item>Blue</item>
+        <item>Green</item>
+     	<item>Yellow</item>
+        <item>Red</item>
+        <item>Gray</item>
+        <item>Purple</item>
+        <item>Orange</item>
+        <item>Brown</item>
+        <item>White</item>
+    </string-array>
+    <string-array name="colorValue">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+    </string-array>
+    <string-array name="widthList">
+        <item>Normal</item>
+        <item>Wide</item>
+        <item>Extra Wide</item>
+    </string-array>
+    <string-array name="widthValue">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+    <string-array name="fillList">
+        <item>Stroke</item>
+        <item>Fill</item>
+    </string-array>
+    <string-array name="fillValue">
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+	<string-array name="selectSource">
+        <item>Camera</item>
+        <item>Image Gallery</item>
+    </string-array>
+    <string-array name="picCatagory">
+        <item>Funny</item>
+        <item>Animal</item>
+        <item>Sci-Fi</item>
+        <item>Artistic</item>
+    </string-array>
+    <string-array name="picCatagoryValue">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
+</resources>

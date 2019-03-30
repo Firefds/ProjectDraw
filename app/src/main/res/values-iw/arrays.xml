@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="shapeList">
+        <item>עיגול קטן</item>
+        <item>עיגול בינוני</item>
+        <item>עיגול גדול</item>
+        <item>ריבוע קטן</item>
+        <item>ריבוע בינוני</item>
+        <item>ריבוע גדול</item>
+        <item>משולש קטן</item>
+        <item>משולש בינוני</item>
+        <item>משולש גדול</item>
+    </string-array>
+    <string-array name="colorList">
+        <item>שחור</item>
+        <item>כחול</item>
+        <item>ירוק</item>
+        <item>צהוב</item>
+        <item>אדום</item>
+        <item>אפור</item>
+        <item>סגול</item>
+        <item>כתום</item>
+        <item>חום</item>
+        <item>לבן</item>
+    </string-array>
+    <string-array name="widthList">
+        <item>רגיל</item>
+        <item>רחב</item>
+        <item>רחב מאוד</item>
+    </string-array>
+    <string-array name="fillList">
+        <item>ריק</item>
+        <item>מלא</item>
+    </string-array>
+    <string-array name="selectSource">
+        <item>מצלמה</item>
+        <item>גלרייה</item>
+    </string-array>
+
+</resources>

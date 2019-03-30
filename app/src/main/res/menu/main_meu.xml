@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/menu_new"
+        android:title="@string/menu_new" android:icon="@android:drawable/ic_menu_delete">
+    </item>
+    <item
+        android:id="@+id/menu_import"
+        android:title="@string/menu_import" android:icon="@android:drawable/ic_menu_add">
+    </item>
+    <item
+        android:id="@+id/menu_save"
+        android:title="@string/save" android:icon="@android:drawable/ic_menu_save">
+    </item>
+    <item
+        android:id="@+id/menu_upload"
+        android:title="@string/upload" android:icon="@android:drawable/ic_menu_upload">
+    </item>
+    <item
+        android:id="@+id/menu_prefs"
+        android:title="@string/preferences" android:icon="@android:drawable/ic_menu_preferences">
+    </item>
+    <item
+        android:id="@+id/menu_gallery"
+        android:title="@string/showGallery" android:icon="@android:drawable/ic_menu_gallery">
+    </item>
+    <item
+        android:id="@+id/menu_send"
+        android:title="@string/send" android:icon="@android:drawable/ic_menu_send">
+    </item>
+
+</menu>

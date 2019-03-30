@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="@string/preferences" >
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="aa"
+        android:summary="@string/defaultAaSummary"
+        android:summaryOff="@string/aaOff"
+        android:summaryOn="@string/aaOn"
+        android:title="@string/defaultAaTitle" />
+    <!--
+    <ListPreference
+        android:defaultValue="9"
+        android:entries="@array/colorList"
+        android:entryValues="@array/colorValue"
+        android:key="bgColor"
+        android:summary="@string/defaultBgColorSummary"
+        android:title="@string/defaulBgColorTitle" />
+    -->
+    <ListPreference
+        android:defaultValue="1"
+        android:entries="@array/colorList"
+        android:entryValues="@array/colorValue"
+        android:key="color"
+        android:summary="@string/defaultColorSummary"
+        android:title="@string/defaultColorTitle" />
+    <ListPreference
+        android:defaultValue="1"
+        android:entries="@array/shapeList"
+        android:entryValues="@array/shapeValue"
+        android:key="shape"
+        android:summary="@string/defaultShapeSummary"
+        android:title="@string/defaultShapeTitle" />
+    <ListPreference
+        android:defaultValue="1"
+        android:entries="@array/fillList"
+        android:entryValues="@array/fillValue"
+        android:key="fill"
+        android:summary="@string/defaultFillSummary"
+        android:title="@string/defaultFillTitle" />
+    <ListPreference
+        android:defaultValue="1"
+        android:entries="@array/widthList"
+        android:entryValues="@array/widthValue"
+        android:key="width"
+        android:summary="@string/defaultWidthSummary"
+        android:title="@string/defaultWidthTitle" />
+
+</PreferenceScreen>
