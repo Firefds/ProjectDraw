@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    android:title="@string/preferences" >
+    android:title="@string/preferences">
 
     <CheckBoxPreference
         android:defaultValue="true"
@@ -9,17 +9,8 @@
         android:summaryOff="@string/aaOff"
         android:summaryOn="@string/aaOn"
         android:title="@string/defaultAaTitle" />
-    <!--
     <ListPreference
-        android:defaultValue="9"
-        android:entries="@array/colorList"
-        android:entryValues="@array/colorValue"
-        android:key="bgColor"
-        android:summary="@string/defaultBgColorSummary"
-        android:title="@string/defaulBgColorTitle" />
-    -->
-    <ListPreference
-        android:defaultValue="1"
+        android:defaultValue="#000000"
         android:entries="@array/colorList"
         android:entryValues="@array/colorValue"
         android:key="color"

@@ -29,6 +29,7 @@ class ProjectConstants {
     static final int COLOR_PURPLE = 7;
     static final int COLOR_ORANGE = 8;
     static final int COLOR_BROWN = 9;
+    static final int COLOR_WHITE = 10;
 
     static final int WIDTH_NORMAL = 6;
     static final int WIDTH_WIDE = 12;
@@ -36,4 +37,7 @@ class ProjectConstants {
 
     static final float SHAKE_THRESHOLD = 500;
     static final int MIN_DIRECTION_CHANGE = 3;
+
+    static final int MY_CAMERA_REQUEST_CODE = 100;
+    static final int MY_STORAGE_REQUEST_CODE = 200;
 }

@@ -1,8 +1,10 @@
 package com.shauli.ProjectDraw;
 
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -18,9 +20,13 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore.Images.Media;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.view.LayoutInflater;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,19 +36,23 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Objects;
 
+import static com.shauli.ProjectDraw.ProjectConstants.MY_CAMERA_REQUEST_CODE;
+import static com.shauli.ProjectDraw.ProjectConstants.MY_STORAGE_REQUEST_CODE;
 import static com.shauli.ProjectDraw.ProjectConstants.REQUEST_BG_COLOR;
 import static com.shauli.ProjectDraw.ProjectConstants.REQUEST_COLOR;
-import static com.shauli.ProjectDraw.ProjectConstants.REQUEST_PREF;
 import static com.shauli.ProjectDraw.ProjectConstants.REQUEST_SHAPE;
 import static com.shauli.ProjectDraw.ProjectConstants.REQUEST_SOURCE_CAMERA;
 import static com.shauli.ProjectDraw.ProjectConstants.REQUEST_SOURCE_GALLERY;
 import static com.shauli.ProjectDraw.ProjectConstants.REQUEST_WIDTH;
 
-public class ProjectDrawActivity extends AppCompatActivity implements OnClickListener, SensorEventListener {
+public class ProjectDrawActivity extends AppCompatActivity
+        implements OnClickListener, SensorEventListener {
     private boolean fill;
     private String fileName;
     private GraphicsView gv = null;
@@ -71,9 +81,7 @@ public class ProjectDrawActivity extends AppCompatActivity implements OnClickLis
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
         Button btnWidth = findViewById(R.id.btnWidth);
 
-        /** checks if the shape is filled or empty and enables/disables it
-         *
-         */
+        //checks if the shape is filled or empty and enables/disables it
         if (!fill) {
             btnWidth.setBackgroundResource(R.drawable.button);
             btnWidth.setEnabled(true);
@@ -144,14 +152,14 @@ public class ProjectDrawActivity extends AppCompatActivity implements OnClickLis
                 showImportMenu();
                 break;
             case R.id.menu_save:
-                save();
+                showSaveModal();
                 break;
             case R.id.menu_upload:
                 upload();
                 break;
             case R.id.menu_prefs:
                 Intent intent = new Intent(this, PreferencesActivity.class);
-                startActivityForResult(intent, REQUEST_PREF);
+                startActivity(intent);
                 break;
             case R.id.menu_gallery:
                 break;
@@ -162,14 +170,14 @@ public class ProjectDrawActivity extends AppCompatActivity implements OnClickLis
     }
 
     /**
-     * Checks if the picture is saved before exit and prompts the user for exit/save/cancel
+     * Checks if the picture is saved before exit and prompts the user for exit/showSaveModal/cancel
      */
     @Override
     public void onBackPressed() {
         if (!gv.isSaved()) {
-            android.support.v7.app.AlertDialog.Builder exitSaveDialog = new android.support.v7.app.AlertDialog.Builder(this);
+            androidx.appcompat.app.AlertDialog.Builder exitSaveDialog = new androidx.appcompat.app.AlertDialog.Builder(this);
             exitSaveDialog.setMessage(getString(R.string.exitSaveMessege));
-            exitSaveDialog.setPositiveButton(getString(R.string.btnSave), (paramDialogInterface, paramInt) -> save());
+            exitSaveDialog.setPositiveButton(getString(R.string.btnSave), (paramDialogInterface, paramInt) -> showSaveModal());
 
             exitSaveDialog.setNegativeButton(getString(R.string.noSave), (paramDialogInterface, paramInt) -> finish());
             exitSaveDialog.setNeutralButton(getString(R.string.cancel), (dialog, which) -> {
@@ -246,14 +254,12 @@ public class ProjectDrawActivity extends AppCompatActivity implements OnClickLis
         Button btnWidth = findViewById(R.id.btnWidth);
 
         gv.setAA(prefs.getBoolean("aa", false));
-        int color = Integer.parseInt(prefs.getString("color", "1"));
-        int shape = Integer.parseInt(prefs.getString("shape", "1"));
-        int width = Integer.parseInt(prefs.getString("width", "1"));
+        int color = Color.parseColor(prefs.getString("color", "#000000"));
+        int shape = Integer.parseInt(Objects.requireNonNull(prefs.getString("shape", "1")));
+        int width = Integer.parseInt(Objects.requireNonNull(prefs.getString("width", "1")));
 
-        /**
-         * Enables/Disables the width button if the chosen shape is filled/empty
-         */
-        switch (Integer.parseInt(prefs.getString("fill", "1"))) {
+        //Enables/Disables the width button if the chosen shape is filled/empty
+        switch (Integer.parseInt(Objects.requireNonNull(prefs.getString("fill", "1")))) {
             case 1:
                 gv.setStyle(Style.STROKE);
                 btnWidth.setEnabled(true);
@@ -266,7 +272,7 @@ public class ProjectDrawActivity extends AppCompatActivity implements OnClickLis
                 break;
         }
 
-        gv.setColor(setColor(color));
+        gv.setColor(color);
         setShape(shape);
         setWidth(width);
         gv.setStrokeCap(Cap.SQUARE);
@@ -287,7 +293,7 @@ public class ProjectDrawActivity extends AppCompatActivity implements OnClickLis
                 chooseWidth();
                 break;
             case R.id.btnSave:
-                save();
+                showSaveModal();
                 break;
             case R.id.btnUpload:
                 upload();
@@ -364,7 +370,7 @@ public class ProjectDrawActivity extends AppCompatActivity implements OnClickLis
             case ProjectConstants.COLOR_BROWN:
                 tempColor = getResources().getColor(R.color.brown);
                 break;
-            case 10:
+            case ProjectConstants.COLOR_WHITE:
                 tempColor = Color.WHITE;
                 break;
         }
@@ -404,56 +410,25 @@ public class ProjectDrawActivity extends AppCompatActivity implements OnClickLis
     /**
      * Saves the current bitmap of the GraphicsView into the picture gallery
      */
-    public void save() {
-        LayoutInflater factory = LayoutInflater.from(this);
-        final View textEntryView = factory.inflate(R.layout.filename_layout, null);
+    public void showSaveModal() {
+        View textEntryView = getLayoutInflater().inflate(R.layout.filename_layout, findViewById(android.R.id.content), false);
 
-        AlertDialog.Builder fileNameInput = new android.support.v7.app.AlertDialog.Builder(this);
+        AlertDialog.Builder fileNameInput = new AlertDialog.Builder(this);
         fileNameInput.setTitle(getString(R.string.save));
         fileNameInput.setView(textEntryView);
-        final EditText fileNameEdit = textEntryView.findViewById(R.id.fileName);
+        EditText fileNameEdit = textEntryView.findViewById(R.id.fileName);
 
-        /**
-         * Checks if the file has already been saved and puts its filename into the EditText
-         */
+        //Checks if the file has already been saved and puts its filename into the EditText
         if (fileName != null)
             fileNameEdit.setText(fileName);
 
         fileNameInput.setPositiveButton(getString(R.string.save), (paramDialogInterface, paramInt) -> {
-            fileName = fileNameEdit.getText().toString();
-
-            /**
-             * Checks if the filename entered is empty or starts with a space
-             */
-            if ((fileName.equals("")) || (fileName.charAt(0) == ' ')) {
-                Toast toast = Toast.makeText(getApplicationContext(), getString(R.string.fileNameEmpty), Toast.LENGTH_SHORT);
-                toast.show();
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_DENIED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_STORAGE_REQUEST_CODE);
             } else {
-                String folder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString();
-                FileOutputStream localFileOutputStream = null;
-                try {
-                    Bitmap bitmap;
-                    localFileOutputStream = new FileOutputStream(folder + "/" + fileName + ".jpg");
-                    bitmap = gv.getBitmap();
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 90, localFileOutputStream);
-                    sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://" + Environment.getExternalStorageDirectory())));
-                    bitmap.recycle();
-                    Toast toast = Toast.makeText(getApplicationContext(), String.format(getString(R.string.fileNameSaved), fileName), Toast.LENGTH_SHORT);
-                    toast.show();
-                    gv.setSaved(true);
-                    gv.setUndoState(false);
-
-                } catch (FileNotFoundException e) {
-                    Toast toast = Toast.makeText(getApplicationContext(), getString(R.string.saveError), Toast.LENGTH_SHORT);
-                    toast.show();
-                } finally {
-                    if (localFileOutputStream != null)
-                        try {
-                            localFileOutputStream.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                }
+                fileName = fileNameEdit.getText().toString();
+                save();
             }
         });
         fileNameInput.setNegativeButton(getString(R.string.cancel), (paramDialogInterface, paramInt) -> {
@@ -469,9 +444,7 @@ public class ProjectDrawActivity extends AppCompatActivity implements OnClickLis
         int width = bgBitmap.getWidth();
         int height = bgBitmap.getHeight();
 
-        /**
-         * Checks if the image is portrait or landscape
-         */
+        //Checks if the image is portrait or landscape
         if (width > height) {
             Matrix matrix = new Matrix();
             matrix.postRotate(90);
@@ -491,13 +464,11 @@ public class ProjectDrawActivity extends AppCompatActivity implements OnClickLis
      * Clears the GraphicsView and loads default settings
      */
     public void newDraw() {
-        /**
-         * Checks if the GraphicsView is saved and prompts if it isn't
-         */
+        //Checks if the GraphicsView is saved and prompts if it isn't
         if (!gv.isSaved()) {
-            android.support.v7.app.AlertDialog.Builder clearDialog = new android.support.v7.app.AlertDialog.Builder(this);
+            androidx.appcompat.app.AlertDialog.Builder clearDialog = new androidx.appcompat.app.AlertDialog.Builder(this);
             clearDialog.setMessage(getString(R.string.newMessege));
-            clearDialog.setPositiveButton(getString(R.string.btnSave), (paramDialogInterface, paramInt) -> save());
+            clearDialog.setPositiveButton(getString(R.string.btnSave), (paramDialogInterface, paramInt) -> showSaveModal());
 
             clearDialog.setNegativeButton(getString(R.string.noSave), (paramDialogInterface, paramInt) -> {
                 gv.clear();
@@ -523,11 +494,16 @@ public class ProjectDrawActivity extends AppCompatActivity implements OnClickLis
         AlertDialog.Builder fileNameInput = new AlertDialog.Builder(this);
         fileNameInput.setTitle(getString(R.string.selectSource));
         fileNameInput.setItems(items, (dialog, which) -> {
-            Intent intent = null;
+            Intent intent;
             switch (which) {
                 case 0:
-                    intent = new Intent(getApplicationContext(), CameraActivity.class);
-                    startActivityForResult(intent, REQUEST_SOURCE_CAMERA);
+                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                            == PackageManager.PERMISSION_DENIED) {
+                        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_CAMERA_REQUEST_CODE);
+                    } else {
+                        intent = new Intent(getApplicationContext(), CameraActivity.class);
+                        startActivityForResult(intent, REQUEST_SOURCE_CAMERA);
+                    }
                     break;
                 case 1:
                     intent = new Intent();
@@ -560,5 +536,72 @@ public class ProjectDrawActivity extends AppCompatActivity implements OnClickLis
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
+    }
+
+    @Override
+
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == MY_CAMERA_REQUEST_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Intent intent;
+                intent = new Intent(getApplicationContext(), CameraActivity.class);
+                startActivityForResult(intent, REQUEST_SOURCE_CAMERA);
+
+            } else {
+                Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
+            }
+        }
+        if (requestCode == MY_STORAGE_REQUEST_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                save();
+            } else {
+                Toast.makeText(this, "storage permission denied", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    private void save() {
+
+        //Checks if the filename entered is empty or starts with a space
+        if ((fileName.equals("")) || (fileName.charAt(0) == ' ')) {
+            Toast toast = Toast.makeText(getApplicationContext(), getString(R.string.fileNameEmpty), Toast.LENGTH_SHORT);
+            toast.show();
+        } else {
+            String folder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString();
+            File myDir = new File(folder);
+            if (!myDir.exists()) {
+                myDir.mkdirs();
+            }
+            FileOutputStream localFileOutputStream = null;
+            File file = new File(myDir, fileName + ".jpg");
+            try {
+                Bitmap bitmap;
+                localFileOutputStream = new FileOutputStream(file);
+                bitmap = gv.getBitmap();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, localFileOutputStream);
+                sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + Environment.getExternalStorageDirectory())));
+                bitmap.recycle();
+                Toast toast = Toast.makeText(getApplicationContext(), String.format(getString(R.string.fileNameSaved), fileName), Toast.LENGTH_SHORT);
+                toast.show();
+                gv.setSaved(true);
+                gv.setUndoState(false);
+
+            } catch (FileNotFoundException e) {
+                Toast toast = Toast.makeText(getApplicationContext(), getString(R.string.saveError), Toast.LENGTH_SHORT);
+                toast.show();
+                e.printStackTrace();
+            } finally {
+                if (localFileOutputStream != null)
+                    try {
+                        localFileOutputStream.flush();
+                        localFileOutputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+            }
+        }
     }
 }
